@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"authenticationService/routes/v1/signUp"
 	"net/http"
 	"strings"
 
@@ -19,7 +20,7 @@ func mount(r *mux.Router, path string, handler http.Handler) {
 func v1Routes() *mux.Router{
 	router:=mux.NewRouter()
 
-	router.Handle("signUp",signUp)
+	router.HandleFunc("signUp",signUp.SignUp)
 
 	return router
 }
