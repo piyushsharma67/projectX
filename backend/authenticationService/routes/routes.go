@@ -1,9 +1,17 @@
-package routes
+package appRoutes
 
-import "github.com/gorilla/mux"
+import (
+	"authenticationService/server"
+	v1 "authenticationService/server/controller/v1"
+	utils "authenticationService/utils"
 
-func intiRoutes() *mux.Router{
+	"github.com/gorilla/mux"
+)
+
+func InitRoutes(server *server.Server) *mux.Router{
 	router:=mux.NewRouter()
 
-	router.Handle("/v1",)
+	utils.RouterUtils(router,"/v1",v1.V1())
+	
+	return router
 }
