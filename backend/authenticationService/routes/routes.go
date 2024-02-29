@@ -2,7 +2,8 @@ package appRoutes
 
 import (
 	"authenticationService/server"
-	v1 "authenticationService/server/controller/v1"
+	v1 "authenticationService/server/v1"
+	v2 "authenticationService/server/v2"
 
 	utils "authenticationService/utils"
 
