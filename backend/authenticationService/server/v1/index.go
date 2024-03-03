@@ -17,7 +17,7 @@ func V1(server *server.Server) *mux.Router{
 	router.HandleFunc("/sign_up",signUp.SignUpController(server)).Methods("POST")
 	router.HandleFunc("/fetch_user_by_email",signUp.FetchUserByEmailController(server)).Methods("GET")
 	router.HandleFunc("/drop_user_table",signUp.DropUserTable(server)).Methods("POST")
-	router.HandleFunc("/login",login.Login(server))
+	router.HandleFunc("/login",login.Login(server)).Methods("GET")
 
 	return router
 }
