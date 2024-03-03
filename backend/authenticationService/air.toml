@@ -1,0 +1,3 @@
+root = "."  # Watch files in the current directory
+build_cmd = "go build -o authenticationService"  # Build command for your application
+run_cmd = "./authenticationService"

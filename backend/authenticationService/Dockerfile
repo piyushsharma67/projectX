@@ -1,4 +1,4 @@
-FROM golang:1.16.0
+FROM golang:1.20.0
 
 WORKDIR /app
 
@@ -6,9 +6,11 @@ COPY ./ /app/
 
 RUN go mod download
 
-RUN go get github.com/githubnemo/CompileDaemon
+RUN curl -sSfL https://raw.githubusercontent.com/cosmtrek/air/master/install.sh | sh -s -- -b $(go env GOPATH)/bin
 
-ENTRYPOINT CompileDaemon --build="go build" --command=./authenticationService
+RUN go build -o authenticationService
+
+CMD air
 
 
 

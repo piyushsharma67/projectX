@@ -16,9 +16,10 @@ func main(){
 	user:=os.Getenv("MYSQL_USER")
 	password:=os.Getenv("MYSQL_PASSWORD")
 	database:=os.Getenv("MYSQL_DATABASE")
-
+	databasePort:=os.Getenv("MY_SQL_PORT")
 	fmt.Println("Creating store!!")
-	store:=store.New(fmt.Sprintf("%s:%s@tcp(%s:%s)/%s",user,password,"localhost",port,database))
+	
+	store:=store.New(fmt.Sprintf("%s:%s@tcp(%s:%s)/%s",user,password,"sql",databasePort,database))
 
 	fmt.Println("Creating server!!")
 	server:=server.New(store)
@@ -28,9 +29,10 @@ func main(){
 
 	fmt.Println("starting server on "+port)
 
-	err:=http.ListenAndServe(":"+port,routes)
+	err:=http.ListenAndServe(fmt.Sprintf(":%s",port),routes)
 
 	if(err!=nil){
 		log.Fatal("error occured")
 	}
+
 }

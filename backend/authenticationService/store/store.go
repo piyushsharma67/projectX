@@ -1,21 +1,21 @@
 package store
 
-import "database/sql"
+import (
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
+)
 
 type Store struct{
-	DB *sql.DB
+	DB *gorm.DB
 }
-func New(dataSourceName string) *Store{
 
+
+func New(dataSourceName string) *Store{
+	
 	s:=&Store{}
-	db,error:=sql.Open("mysql",dataSourceName)
+	db,error:=gorm.Open(mysql.Open(dataSourceName),&gorm.Config{})
 
 	if(error!=nil){
-		return nil
-	}
-
-	err:=db.Ping()
-	if(err!=nil){
 		return nil
 	}
 

@@ -13,6 +13,7 @@ services:
       MYSQL_PASSWORD: piyush
       MY_SQL_PORT: 3306
       MY_SQL_DATABASE: user
+      ACCESS_SECRET: jdfbjfsffbdsfdf287493dvsmvd
     volumes:
       - ./:/app
     networks:
