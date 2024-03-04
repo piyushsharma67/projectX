@@ -8,8 +8,6 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
-
-	"golang.org/x/crypto/bcrypt"
 )
 
 type UserLoginRequestBody struct{
@@ -30,11 +28,6 @@ func validateLoginRequestBody (requestBody *UserLoginRequestBody)error{
 		return PASSWORD_CANNOT_BE_EMPTY
 	}
 	return nil
-}
-
-func CheckPasswordHash(password, hash string) bool {
-    err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
-    return err == nil
 }
 
 type UserLoginDetails struct{
