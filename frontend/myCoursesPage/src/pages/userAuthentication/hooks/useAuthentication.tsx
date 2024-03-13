@@ -38,7 +38,6 @@ function useAuthentication() {
                 if (response.meta.requestStatus == 'rejected') {
 
                 } else {
-                    console.log("dsadasd")
                     navigate('/', { replace: true })
                 }
             } catch (error) {

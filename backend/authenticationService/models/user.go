@@ -9,3 +9,8 @@ type User struct{
     HashedPassword string 
 
 }
+
+type UserLoginDetails struct{
+	User *User
+	Token string
+}

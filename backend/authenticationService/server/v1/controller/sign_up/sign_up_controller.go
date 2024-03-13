@@ -22,9 +22,9 @@ func checkIfUserTableExists(db *gorm.DB)error{
 }
 
 
-
 var (
 	EMPTY_EMAIL=errors.New("email cannot be empty")
+	INVALID_CREDENTIALS=errors.New("invalid credentials")
 )
 
 func ValidateRequestBody(user *models.User)error{
@@ -45,6 +45,14 @@ func ValidateRequestBody(user *models.User)error{
 
 func SignUpController(server *server.Server) http.HandlerFunc{
 	return func(w http.ResponseWriter,r *http.Request){
+
+		if r.Method == "OPTIONS" {
+			w.Header().Set("Access-Control-Allow-Origin", "*")
+			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+			w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+			w.WriteHeader(http.StatusOK)
+			return
+		}
 
 		checkIfUserTableExists(server.Store.DB)
 
@@ -74,7 +82,31 @@ func SignUpController(server *server.Server) http.HandlerFunc{
 			return
 		}
 
-		utils.CreateSuccessResponse("successful",nil,http.StatusOK,w)
+		users,err:=sign_up_services.FetchUserInDb(server.Store,user.Email)
+
+		if(err!=nil){
+			utils.CreateErrorResponse(err,http.StatusOK,w)
+			return
+		}else if(users==nil){
+			utils.CreateErrorResponse(INVALID_CREDENTIALS,http.StatusUnauthorized,w)
+			return
+		}
+
+		jwtToken, err := utils.CreateLoginJWTToken(user.Email, r.UserAgent())
+		if err != nil {
+			utils.CreateErrorResponse(err, http.StatusUnauthorized, w)
+			return
+		}
+
+		userLoginResponseBody := models.UserLoginDetails{
+			User:  user,
+			Token: jwtToken,
+		}
+
+		userLoginResponseBody.User.Password=""
+		userLoginResponseBody.User.HashedPassword=""
+
+		utils.CreateSuccessResponse("successful",userLoginResponseBody,http.StatusOK,w)
 	}
 }
 
@@ -97,7 +129,7 @@ func FetchUserByEmailController(server *server.Server) http.HandlerFunc{
 			return
 		}
 
-		result,errors:=sign_up_services.FetchUserInDb(server.Store,user.Email); 
+		result,errors:=sign_up_services.FetchUserByEmailInDb(server.Store,user.Email); 
 		
 		if errors!=nil{
 			utils.CreateErrorResponse(errors,http.StatusOK,w)

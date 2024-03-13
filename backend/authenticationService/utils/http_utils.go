@@ -13,6 +13,8 @@ type ErrorResponse struct {
 func CreateErrorResponse(err error, statusCode int, w http.ResponseWriter) {
 	resp := &ErrorResponse{statusCode, err.Error()}
 	respJSON, _ := json.Marshal(resp)
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+    w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 	w.WriteHeader(statusCode)
 	w.Write(respJSON)
 }
@@ -26,6 +28,8 @@ type SuccessResponse struct {
 func CreateSuccessResponse(message string, data interface{}, statusCode int, w http.ResponseWriter) {
 	resp := &SuccessResponse{statusCode, message, data}
 	respJSON, _ := json.Marshal(resp)
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+    w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 	w.WriteHeader(statusCode)
 	w.Write((respJSON))
 }

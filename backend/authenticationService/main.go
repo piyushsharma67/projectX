@@ -8,6 +8,8 @@ import (
 	"log"
 	"net/http"
 	"os"
+
+	"github.com/gorilla/handlers"
 )
 
 func main(){
@@ -19,7 +21,7 @@ func main(){
 	databasePort:=os.Getenv("MY_SQL_PORT")
 	fmt.Println("Creating store!!")
 	
-	store:=store.New(fmt.Sprintf("%s:%s@tcp(%s:%s)/%s",user,password,"sql",databasePort,database))
+	store:=store.New(fmt.Sprintf("%s:%s@tcp(%s:%s)/%s",user,password,"sql-service",databasePort,database))
 
 	fmt.Println("Creating server!!")
 	server:=server.New(store)
@@ -28,8 +30,11 @@ func main(){
 	routes:=appRoutes.InitRoutes(server)
 
 	fmt.Println("starting server on "+port)
+	headersOk := handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization", "Content-Disposition"})
+	originsOk := handlers.AllowedOrigins([]string{"*"})
+	methodsOk := handlers.AllowedMethods([]string{"GET", "POST", "PUT", "OPTIONS", "DELETE"})
 
-	err:=http.ListenAndServe(fmt.Sprintf(":%s",port),routes)
+	err:=http.ListenAndServe(fmt.Sprintf(":%s",port),handlers.CORS(originsOk, headersOk, methodsOk)(routes))
 
 	if(err!=nil){
 		log.Fatal("error occured")

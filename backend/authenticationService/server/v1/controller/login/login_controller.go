@@ -30,10 +30,10 @@ func validateLoginRequestBody (requestBody *UserLoginRequestBody)error{
 	return nil
 }
 
-type UserLoginDetails struct{
-	User *models.User
-	Token string
-}
+// type UserLoginDetails struct{
+// 	User *models.User
+// 	Token string
+// }
 
 func Login(server *server.Server)http.HandlerFunc{
 	return func (w http.ResponseWriter,r *http.Request){
@@ -58,18 +58,13 @@ func Login(server *server.Server)http.HandlerFunc{
 			return
 		}
 
-		// if err=utils.ComparePassword(loginRequestBody.Password,user.HashedPassword); err!=nil{
-		// 	utils.CreateErrorResponse(err,http.StatusOK,w)
-		// 	return
-		// }
-
 		jwtToken, err := utils.CreateLoginJWTToken(user.Email, r.UserAgent())
 		if err != nil {
 			utils.CreateErrorResponse(err, http.StatusUnauthorized, w)
 			return
 		}
 
-		userLoginResponseBody := UserLoginDetails{
+		userLoginResponseBody := models.UserLoginDetails{
 			User:  user,
 			Token: jwtToken,
 		}

@@ -1,3 +1,6 @@
+# github.com/felixge/httpsnoop v1.0.3
+## explicit; go 1.13
+github.com/felixge/httpsnoop
 # github.com/go-sql-driver/mysql v1.7.1
 ## explicit; go 1.13
 github.com/go-sql-driver/mysql
@@ -8,6 +11,9 @@ github.com/golang-jwt/jwt
 ## explicit; go 1.18
 # github.com/golang/protobuf v1.5.3
 ## explicit; go 1.9
+# github.com/gorilla/handlers v1.5.2
+## explicit; go 1.20
+github.com/gorilla/handlers
 # github.com/gorilla/mux v1.8.1
 ## explicit; go 1.20
 github.com/gorilla/mux

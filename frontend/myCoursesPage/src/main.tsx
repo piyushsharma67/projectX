@@ -19,7 +19,7 @@ const router = createBrowserRouter([
   {
     path: "/authenticate",
     element: <UserAuthenticationPage />
-  }
+  },
 ]);
 
 const theme = createTheme({
