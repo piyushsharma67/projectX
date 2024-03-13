@@ -9,4 +9,3 @@ spec:
   - protocol: TCP
     port: 3306  # Standard MySQL port
     targetPort: 3306
-  type: ClusterIP

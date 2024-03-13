@@ -15,8 +15,8 @@ import (
 func main(){
 	port := os.Getenv("PORT")
 
-	user:=os.Getenv("MYSQL_USER")
-	password:=os.Getenv("MYSQL_PASSWORD")
+	user:="root"
+	password:=os.Getenv("MYSQL_ROOT_PASSWORD")
 	database:=os.Getenv("MYSQL_DATABASE")
 	databasePort:=os.Getenv("MY_SQL_PORT")
 	fmt.Println("Creating store!!")

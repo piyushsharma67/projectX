@@ -22,6 +22,8 @@ spec:
           value: piyush
         - name: MYSQL_PASSWORD
           value: piyush
+        - name: MYSQL_DATABASE
+          value: user
         volumeMounts:
         - name: mysql-data  # Optional: Mount volume for persistent data
           mountPath: /var/lib/mysql
