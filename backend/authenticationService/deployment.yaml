@@ -16,7 +16,7 @@ spec:
       - name: regcred
       containers:
       - name: authentication-service  # Replace with your container name
-        image: piyush67sharma/authentication_service:v7  # Replace with your Docker Hub details
+        image: piyush67sharma/authentication_service:v8  # Replace with your Docker Hub details
         ports:
         - containerPort: 3000  # Port the container exposes
         env:
