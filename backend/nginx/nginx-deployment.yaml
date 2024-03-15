@@ -1,29 +1,26 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: nginx-gateway
+  name: nginx-ingress-controller
+  namespace: ingress-nginx
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: nginx-gateway
+      app: nginx-ingress-controller
   template:
     metadata:
       labels:
-        app: nginx-gateway
+        app: nginx-ingress-controller
     spec:
       containers:
-      - name: nginx
-        image: nginx:latest
-        volumeMounts:
-        - name: nginx-config
-          mountPath: /etc/nginx/conf.d
-          readOnly: true
-  # Volumes definition moved here
-  volumes:
-  - name: nginx-config
-    configMap:
-      name: nginx-config
+      - name: nginx-ingress-controller
+        image: k8s.gcr.io/ingress-nginx/controller:v1.0.0
+        args:
+        - /nginx-ingress-controller
+        - --publish-service=$(POD_NAMESPACE)/ingress-nginx-controller
+        - --election-id=ingress-controller-leader
+        - --ingress-class=nginx
 
 ---
 
