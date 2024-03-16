@@ -2,9 +2,8 @@ package appRoutes
 
 import (
 	"authenticationService/server"
-	v1 "authenticationService/server/v1"
-	v2 "authenticationService/server/v2"
-
+	"authenticationService/server/controller/authenticate"
+	"authenticationService/server/controller/jwt"
 	utils "authenticationService/utils"
 
 	"github.com/gorilla/mux"
@@ -13,8 +12,8 @@ import (
 func InitRoutes(server *server.Server) *mux.Router{
 	router:=mux.NewRouter()
 
-	utils.RouterUtils(router,"/v1",v1.V1(server))
-	utils.RouterUtils(router,"/v2",v2.V2(server))
+	utils.RouterUtils(router,"/authenticate",authenticate.AuthenticateInitRoute(server))
+	utils.RouterUtils(router,"/jwt",jwt.ValidateJwtInitRoute(server))
 	
 	return router
 }

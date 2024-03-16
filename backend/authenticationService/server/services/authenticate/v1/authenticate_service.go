@@ -1,4 +1,4 @@
-package sign_up_services
+package authenticate_service
 
 import (
 	"authenticationService/models"
@@ -8,6 +8,7 @@ import (
 
 	"gorm.io/gorm"
 )
+
 
 func ValidateIsEmailExists(store *store.Store,email string)error{
 	
@@ -77,3 +78,5 @@ func FetchUserByEmailInDb(store *store.Store,email string) (*models.User,error){
 }
 
 	
+
+
