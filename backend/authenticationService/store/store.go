@@ -11,7 +11,6 @@ type Store struct{
 	DB *gorm.DB
 }
 
-
 func New(dataSourceName string) *Store{
 	
 	s:=&Store{}
