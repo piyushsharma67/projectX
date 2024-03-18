@@ -9,16 +9,14 @@ spec:
   rules:
   - http:
       paths:
-      - path: /mock_service
+      - path: /mock
         pathType: Prefix
         backend:
           service:
             name: mock-service
             port:
               number: 3001
-  - http:
-      paths:
-      - path: /authentication_service
+      - path: /auth
         pathType: Prefix
         backend:
           service:
