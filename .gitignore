@@ -1,2 +1,2 @@
-backend/kubernetesConfig/clusterSecrets/secrets.yaml
+backend/kubernetesConfig/clusterSecrets/secret.yaml
 backend/kubernetesConfig/clusterSecrets/globalConstants.txt
