@@ -5,6 +5,7 @@ import (
 	appRoutes "authenticationService/routes"
 	"authenticationService/server"
 	"authenticationService/store"
+	"encoding/base64"
 
 	// "context"
 	"fmt"
@@ -20,7 +21,16 @@ import (
 
 func main(){
 
-	mongoUrl:=os.Getenv("mongoConnectionString")
+	secret:=os.Getenv("secretData")
+
+	decodedBytes, err := base64.StdEncoding.DecodeString(secret)
+	if err != nil {
+		fmt.Println("Error decoding Base64:", err)
+		return
+	}
+
+	// Convert decoded bytes to a string
+	mongoUrl := string(decodedBytes)
 	grpcPort:=os.Getenv("grpcPort")
 	httpPort:=os.Getenv("httpPort")
 
@@ -47,8 +57,6 @@ func main(){
 			fmt.Printf("Failed to serve: %v", err)
 		}
 	}()
-
-	// testGRPCConnection(grpcPort)
 
 	//*************http server implementation***************
 	
