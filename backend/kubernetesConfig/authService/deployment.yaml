@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: authservice  # Replace with your desired deployment name
+spec:
+  replicas: 1  # Number of pod replicas (usually 1 for a single instance)
+  selector:
+    matchLabels:
+      app: authservice  # Replace with your service name
+  template:
+    metadata:
+      labels:
+        app: authservice  # Match labels with selector
+    spec:
+      imagePullSecrets:
+      - name: dockercred
+      containers:
+      - name: authservice  # Replace with your container name
+        image: piyush67sharma/authservice:v2 # Replace with your Docker Hub details
+        ports:
+        - containerPort: 3000  # Port the http server exposes
+        - containerPort: 5000  # Port the grpc server exposes
+        env:
+        - name: grpcPort
+          value: "5000"
+        - name: httpPort
+          value: "3000"
+        - name: mongoConnectionString
+          valueFrom:
+            secretKeyRef:
+              name: cluster-global-constants
+              key: secret-data
+        

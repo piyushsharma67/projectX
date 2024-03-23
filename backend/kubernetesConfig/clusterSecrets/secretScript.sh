@@ -1,13 +1,10 @@
 #!/bin/bash
 
-# Check if input file is provided
-if [ $# -ne 1 ]; then
-    echo "Usage: $0 <input_file>"
-    exit 1
-fi
+# Get the directory of the script
+SCRIPT_DIR=$(dirname "$(readlink -f "$0")")
 
-# Input file
-input_file="$1"
+# Input file location
+input_file="$SCRIPT_DIR/globalConstants.txt"
 
 # Check if input file exists
 if [ ! -f "$input_file" ]; then
@@ -26,10 +23,15 @@ cat <<EOF > secret.yaml
 apiVersion: v1
 kind: Secret
 metadata:
-  name: clusterGlobalConstants
+  name: cluster-global-constants
 type: Opaque
 data:
   secret-data: $encoded_content
 EOF
 
 echo "Secret YAML file 'secret.yaml' created successfully"
+
+echo "Deploying the Secret..."
+kubectl apply -f secret.yaml
+
+echo "Secret deployed successfully"

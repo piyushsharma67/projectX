@@ -31,6 +31,9 @@ func main(){
 
 	// Convert decoded bytes to a string
 	mongoUrl := string(decodedBytes)
+
+	fmt.Println("decoded is"+mongoUrl)
+
 	grpcPort:=os.Getenv("grpcPort")
 	httpPort:=os.Getenv("httpPort")
 
