@@ -4,9 +4,12 @@ import (
 	"authenticationService/models"
 	"authenticationService/store"
 	"authenticationService/utils"
+	"context"
 	"errors"
+	"fmt"
 
-	"gorm.io/gorm"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 
@@ -14,15 +17,17 @@ func ValidateIsEmailExists(store *store.Store,email string)error{
 	
 	var user models.User
 
-	if err := store.DB.First(&user,"Email = ?",email).Error; err != nil {
-		// Handle error...
-		if(err==gorm.ErrRecordNotFound){
-			return nil
-		}
-	  }
-	// User found, email already exists
-	return errors.New("user with this email already exists")
-	
+	filter := bson.M{"email": email}
+
+	err := store.DB.Collection("user").FindOne(context.Background(),filter).Decode(user)
+		
+	if(err!=nil){
+		return nil
+	}else if(user.Email!=""){
+		return errors.New("User already exists")
+	}
+
+	return nil
 }
 
 
@@ -35,10 +40,13 @@ func SaveUserInDb(store *store.Store,user *models.User) (error){
 	}
 	user.HashedPassword=hashedPass
 	
-	result:=store.DB.Create(&user)
+	// result:=store.DB.Create(&user)
+	insertOptions := options.InsertOne().SetBypassDocumentValidation(false)
+	fmt.Println("user is",user)
+	_,err=store.DB.Collection("users").InsertOne(context.Background(), user, insertOptions)
 
-	if(result.Error!=nil){
-		return result.Error
+	if(err!=nil){
+		return err
 	}
 	return nil	
 	
@@ -46,34 +54,44 @@ func SaveUserInDb(store *store.Store,user *models.User) (error){
 
 func FetchUserInDb(store *store.Store,email string) ([]*models.User,error){
 	var users []*models.User
-	result:=store.DB.First(&users,"Email = ?",email)
 
-	if(result.Error!=nil){
-		return nil,result.Error
+	filter := bson.M{"email": email}
+	cursor,err:=store.DB.Collection("users").Find(context.Background(),filter)
+
+	if(err!=nil){
+		return nil,err
 	}
+
+	for cursor.Next(context.Background()) {
+        var user models.User
+        if err := cursor.Decode(&user); err != nil {
+            return nil, err
+        }
+        users = append(users, &user)
+    }
+    if err := cursor.Err(); err != nil {
+        return nil, err
+    }
 
 	return users,nil	
 	
 }
 
-func DropUsertable(store *store.Store)error{
-	if err:=store.DB.Migrator().DropTable(&models.User{});err!=nil{
-		return err
-	}
-	return nil
-}
 
 func FetchUserByEmailInDb(store *store.Store,email string) (*models.User,error){
-	var users *models.User
-	result:=store.DB.First(&users,"Email = ?",email)
+	var user *models.User
 
-	if(result.Error!=nil){
-		return nil,result.Error
+	filter := bson.M{"email": email}
+
+	err:=store.DB.Collection("users").FindOne(context.Background(),filter).Decode(user)
+
+	if(err!=nil){
+		return nil,err
 	}
 
-	users.HashedPassword=""
+	user.HashedPassword=""
 
-	return users,nil	
+	return user,nil	
 	
 }
 

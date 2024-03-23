@@ -8,8 +8,6 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
-
-	"gorm.io/gorm"
 )
 
 type UserLoginRequestBody struct{
@@ -71,16 +69,6 @@ func Login(server *server.Server)http.HandlerFunc{
 }
 
 
-func checkIfUserTableExists(db *gorm.DB)error{
-	if !db.Migrator().HasTable(&models.User{}) {
-		if err := db.AutoMigrate(&models.User{}); err != nil {   // Create 'users' table with the desired structure
-			return err
-		}
-	}
-	return nil
-}
-
-
 func ValidateRequestBody(user *models.User)error{
 	var err error
 	
@@ -99,16 +87,6 @@ func ValidateRequestBody(user *models.User)error{
 
 func SignUpController(server *server.Server) http.HandlerFunc{
 	return func(w http.ResponseWriter,r *http.Request){
-
-		if r.Method == "OPTIONS" {
-			w.Header().Set("Access-Control-Allow-Origin", "*")
-			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-			w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
-			w.WriteHeader(http.StatusOK)
-			return
-		}
-
-		checkIfUserTableExists(server.Store.DB)
 
 		var err error
 		var user *models.User
@@ -167,8 +145,6 @@ func SignUpController(server *server.Server) http.HandlerFunc{
 func FetchUserByEmailController(server *server.Server) http.HandlerFunc{
 	return func(w http.ResponseWriter,r *http.Request){
 
-		checkIfUserTableExists(server.Store.DB)
-
 		var err error
 		var user *models.User
 
@@ -191,15 +167,5 @@ func FetchUserByEmailController(server *server.Server) http.HandlerFunc{
 		}
 
 		utils.CreateSuccessResponse("successful",result,http.StatusOK,w)
-	}
-}
-
-func DropUserTable(server *server.Server)http.HandlerFunc{
-	return func(w http.ResponseWriter,r *http.Request){
-		if err:=authenticate_service.DropUsertable(server.Store); err!=nil{
-			utils.CreateErrorResponse(err,http.StatusOK,w)
-			return
-		}
-		utils.CreateSuccessResponse("successful dropped table",nil,http.StatusOK,w)
 	}
 }

@@ -1,27 +1,28 @@
 package store
 
 import (
-	"fmt"
+	"context"
+	"log"
 
-	"gorm.io/driver/mysql"
-	"gorm.io/gorm"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type Store struct{
-	DB *gorm.DB
+	DB *mongo.Database
 }
 
-func New(dataSourceName string) *Store{
+func New(connectionString string) *Store{
 	
 	s:=&Store{}
-	fmt.Println("db url"+dataSourceName)
-	db,error:=gorm.Open(mysql.Open(dataSourceName),&gorm.Config{})
+	clientOption:=options.Client().ApplyURI(connectionString)
+	client, err := mongo.Connect(context.Background(), clientOption)
 
-	if(error!=nil){
-		return nil
+	if(err!=nil){
+		log.Fatal(err)
 	}
 
-	s.DB=db
+	s.DB=client.Database("schoolApp")
 
 	return s
 

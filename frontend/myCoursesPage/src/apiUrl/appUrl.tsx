@@ -1,1 +1,0 @@
-export const apiUrl = "https://c86a-2401-4900-1c5b-342f-d45f-d2ff-237b-7ea6.ngrok-free.app"

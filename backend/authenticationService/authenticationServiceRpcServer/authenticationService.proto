@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+import "google/protobuf/any.proto";
+
+package authenticationServiceRpcServer;
+option go_package="github.com/piyushsharma67/projectX/backend/autheticationService/authenticationServiceRpcServer";
+
+message TokenRequest {
+  string token = 1;
+}
+
+message SuccessResponse {
+  int32 status_code = 1;
+  string message = 2;
+  string data = 3;
+}
+
+message ErrorResponse {
+  int32 status_code = 1;
+  string error_message = 2;
+}
+
+message TokenResponse {
+  oneof response {
+    SuccessResponse success = 1;
+    ErrorResponse error = 2;
+  }
+}
+
+service TokenValidation {
+  rpc ValidateToken(TokenRequest) returns (TokenResponse);
+}
+

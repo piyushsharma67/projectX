@@ -3,8 +3,6 @@ package utils
 import (
 	"bytes"
 	"fmt"
-	"os"
-	"strings"
 	"time"
 
 	"github.com/golang-jwt/jwt"
@@ -46,7 +44,7 @@ func CreateLoginJWTToken(email string, useragent string) (string, error) {
 	}
 
 	at := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	token, err := at.SignedString([]byte(os.Getenv("ACCESS_SECRET")))
+	token, err := at.SignedString([]byte("test"))
 	if err != nil {
 		return "", err
 	}
@@ -55,20 +53,20 @@ func CreateLoginJWTToken(email string, useragent string) (string, error) {
 
 }
 
-func VerifyToken(reqtoken string) (bool, string) {
-	bearerToken := strings.Split(reqtoken, " ")
-	if len(bearerToken) == 2 {
+func VerifyToken(reqtoken string) (bool, string,string) {
+	
+	if len(reqtoken)!=0 {
 		claims := &CustomClaims{}
-		token, _ := jwt.ParseWithClaims(bearerToken[1], claims, func(token *jwt.Token) (interface{}, error) {
+		token, err := jwt.ParseWithClaims(reqtoken, claims, func(token *jwt.Token) (interface{}, error) {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, fmt.Errorf("Invalid Token")
 			}
-			return []byte(os.Getenv("ACCESS_SECRET")), nil
+			return []byte("test"), nil
 		})
 		if token.Valid {
-			return true, claims.UserId
+			return true, claims.UserId,claims.UserId
 		}
-		return false, ""
+		return false, err.Error(),""
 	}
-	return false, ""
+	return false, "token not provided",""
 }
