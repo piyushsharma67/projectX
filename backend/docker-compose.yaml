@@ -13,6 +13,7 @@ services:
       mongoConnectionString: 'mongodb+srv://goku:mongoGoku56@schoolapp.jkesrkw.mongodb.net/'
       httpPort: 3000
       grpcPort: 5002
+      tokenservice: 'tokenservice'
   notifyservice:
     build: ./notificationservice
     ports:
