@@ -12,7 +12,7 @@ type CustomClaims struct {
 	jwt.StandardClaims
 }
 
-func CreateLoginJWTToken(email string) (string, error) {
+func CreateLoginJWTToken(email string,secret string) (string, error) {
 
 	claims:= CustomClaims{
 		email,
@@ -22,7 +22,7 @@ func CreateLoginJWTToken(email string) (string, error) {
 	}
 
 	at := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	token, err := at.SignedString([]byte("test"))
+	token, err := at.SignedString([]byte(secret))
 	if err != nil {
 		return "", err
 	}
@@ -31,7 +31,7 @@ func CreateLoginJWTToken(email string) (string, error) {
 
 }
 
-func VerifyToken(reqtoken string) (bool, string,string) {
+func VerifyToken(reqtoken string,secret string) (bool, string,string) {
 	
 	if len(reqtoken)!=0 {
 		claims := &CustomClaims{}
@@ -39,7 +39,7 @@ func VerifyToken(reqtoken string) (bool, string,string) {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, fmt.Errorf("Invalid Token")
 			}
-			return []byte("test"), nil
+			return []byte(secret), nil
 		})
 		if token.Valid {
 			return true, claims.UserId,claims.UserId

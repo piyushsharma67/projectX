@@ -172,6 +172,7 @@ func LoginController(server *server.Server,tsc *tokenServiceConnPackage.TokenSer
 			utils.CreateErrorResponse(err, http.StatusUnauthorized, w)
 			return
 		}
+		user.Password=""
 
 		userLoginResponseBody := models.UserLoginDetails{
 			User:  user,

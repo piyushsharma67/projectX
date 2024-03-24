@@ -8,7 +8,7 @@ services:
     volumes:
       - ./authenticationService:/app
     networks:
-      - farm-api_go_stack
+      - school_mgmt_go_stack
     environment:
       mongoConnectionString: 'mongodb+srv://goku:mongoGoku56@schoolapp.jkesrkw.mongodb.net/'
       httpPort: 3000
@@ -21,7 +21,7 @@ services:
     volumes:
       - ./notificationservice:/app
     networks:
-      - farm-api_go_stack
+      - school_mgmt_go_stack
   tokenservice:
     build: ./tokenService
     ports:
@@ -29,10 +29,11 @@ services:
     volumes:
       - ./tokenService:/app
     networks:
-      - farm-api_go_stack
+      - school_mgmt_go_stack
     environment:
       grpcPort: 5002
+      secret: "djgfmjjdjshdytsajdghsjdgadgdvja234hcvdhcvsdc"
 
 networks:
-    farm-api_go_stack:
-        driver: bridge
+  school_mgmt_go_stack:
+    driver: bridge

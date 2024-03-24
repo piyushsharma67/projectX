@@ -2,7 +2,7 @@ package tokenRpcServerProtoFiles
 
 import (
 	context "context"
-	"fmt"
+	"os"
 	"tokenService/utils"
 )
 
@@ -20,10 +20,9 @@ func (s *TokenServices) mustEmbedUnimplementedTokenValidationServer() {
 
 func (s *TokenServices) GenerateToken(ctx context.Context, req *GenerateTokenRequest) (*TokenResponse, error) {
 	email := req.EmailId
+	secret:=os.Getenv("secret")
 
-	fmt.Println("email id is", email)
-
-	jwt, err := utils.CreateLoginJWTToken(email)
+	jwt, err := utils.CreateLoginJWTToken(email,secret)
 
 	if err != nil {
 		return &TokenResponse{
@@ -50,8 +49,9 @@ func (s *TokenServices) GenerateToken(ctx context.Context, req *GenerateTokenReq
 
 func (s *TokenServices) ValidateToken(ctx context.Context, req *TokenRequest) (*TokenResponse, error) {
 	token := req.Token
-
-	isValidToken, err, value := utils.VerifyToken(token)
+	secret:=os.Getenv("secret")
+	
+	isValidToken, err, value := utils.VerifyToken(token,secret)
 
 	if isValidToken {
 		// Token is valid, construct and return a success response
