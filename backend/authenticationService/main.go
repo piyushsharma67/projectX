@@ -22,14 +22,8 @@ import (
 
 func main(){
 
-	secret:=os.Getenv("mongoConnectionString")
-	mongoUrl,err:=getConnectionString(secret)
-
-	if(err!=nil){
-		return
-	}
-
-	fmt.Println("decoded is"+mongoUrl)
+	
+	mongoUrl:=os.Getenv("mongoConnectionString")
 
 	grpcPort:=os.Getenv("grpcPort")
 	httpPort:=os.Getenv("httpPort")
