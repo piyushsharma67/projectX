@@ -16,7 +16,7 @@ spec:
       - name: dockercred
       containers:
       - name: authservice  # Replace with your container name
-        image: piyush67sharma/authservice:v2 # Replace with your Docker Hub details
+        image: piyush67sharma/authservice:v7 # Replace with your Docker Hub details
         ports:
         - containerPort: 3000  # Port the http server exposes
         - containerPort: 5000  # Port the grpc server exposes

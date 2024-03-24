@@ -9,4 +9,3 @@ spec:
   - protocol: TCP  # Protocol (TCP or UDP)
     port: 3000  # External port to access the service
     targetPort: 3000  # Port exposed by the container
-  type: NodePort  # Optional: Specify service type (e.g., NodePort, LoadBalancer)

@@ -5,14 +5,15 @@ import (
 	appRoutes "authenticationService/routes"
 	"authenticationService/server"
 	"authenticationService/store"
-	"encoding/base64"
+	"errors"
+	"net"
+	"os"
+	"strings"
 
-	// "context"
 	"fmt"
 	"log"
-	"net"
 	"net/http"
-	"os"
+
 	"sync"
 
 	"github.com/gorilla/handlers"
@@ -21,23 +22,19 @@ import (
 
 func main(){
 
-	secret:=os.Getenv("secretData")
+	secret:=os.Getenv("mongoConnectionString")
+	mongoUrl,err:=getConnectionString(secret)
 
-	decodedBytes, err := base64.StdEncoding.DecodeString(secret)
-	if err != nil {
-		fmt.Println("Error decoding Base64:", err)
+	if(err!=nil){
 		return
 	}
-
-	// Convert decoded bytes to a string
-	mongoUrl := string(decodedBytes)
 
 	fmt.Println("decoded is"+mongoUrl)
 
 	grpcPort:=os.Getenv("grpcPort")
 	httpPort:=os.Getenv("httpPort")
 
-	//**************grpc server implementation***************
+	// **************grpc server implementation***************
 
 	var wg sync.WaitGroup
 
@@ -61,7 +58,7 @@ func main(){
 		}
 	}()
 
-	//*************http server implementation***************
+	// *************http server implementation***************
 	
 	go func(){
 		defer wg.Done()
@@ -81,7 +78,7 @@ func main(){
 		originsOk := handlers.AllowedOrigins([]string{"*"})
 		methodsOk := handlers.AllowedMethods([]string{"GET", "POST", "PUT", "OPTIONS", "DELETE"})
 		
-		err:=http.ListenAndServe(fmt.Sprintf(":%s",httpPort),handlers.CORS(originsOk,headersOk,methodsOk)(routes))
+		err:=http.ListenAndServe(fmt.Sprintf(":%s",httpPort),handlers.CORS(headersOk,originsOk,methodsOk)(routes))
 	
 		if(err!=nil){
 			log.Fatal(err)
@@ -91,8 +88,29 @@ func main(){
 	}()
 
 	wg.Wait()
+}
 
-	
+func getConnectionString(conenctString string) (string,error){
+	startIndex := strings.Index(conenctString, "mongodb+srv:")
+	if startIndex == -1 {
+		return "",errors.New("MongoDB connection string not found")
+	}
+
+	// Trim the string to get the MongoDB connection string
+	trimmed := conenctString[startIndex:]
+
+	// Find the end position of the MongoDB connection string
+	endIndex := strings.Index(trimmed, ",")
+	if endIndex == -1 {
+		fmt.Println("Invalid decoded string format")
+		return "",errors.New("Invalid decoded string format")
+	}
+
+	// Extract the MongoDB connection string
+	mongoUrl := trimmed[:endIndex]
+
+	// Print the extracted MongoDB connection string
+	return mongoUrl,nil
 }
 
 // func testGRPCConnection(grpcPort string) {

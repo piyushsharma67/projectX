@@ -3,6 +3,7 @@ package appRoutes
 import (
 	"authenticationService/server"
 	"authenticationService/server/controller"
+
 	"authenticationService/server/controller/authenticate"
 	utils "authenticationService/utils"
 
@@ -12,8 +13,8 @@ import (
 func InitRoutes(server *server.Server) *mux.Router{
 	router:=mux.NewRouter()
 
-	utils.RouterUtils(router,"/authenticate",authenticate.AuthenticateInitRoute(server))
-	router.HandleFunc("/health",controller.ServerHealth)
+	utils.RouterUtils(router,"/auth/authenticate",authenticate.AuthenticateInitRoute(server))
+	router.HandleFunc("/auth/health",controller.ServerHealth).Methods("GET")
 	
 	return router
 }
