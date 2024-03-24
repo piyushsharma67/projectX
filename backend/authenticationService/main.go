@@ -1,7 +1,7 @@
 package main
 
 import (
-	"authenticationService/authenticationServiceRpcServer"
+	"authenticationService/authRpcServerProtoFiles"
 	appRoutes "authenticationService/routes"
 	"authenticationService/server"
 	"authenticationService/store"
@@ -22,13 +22,9 @@ import (
 
 func main(){
 
-	
-	mongoUrl:=os.Getenv("mongoConnectionString")
+	// **************grpc server implementation***************
 
 	grpcPort:=os.Getenv("grpcPort")
-	httpPort:=os.Getenv("httpPort")
-
-	// **************grpc server implementation***************
 
 	var wg sync.WaitGroup
 
@@ -36,9 +32,9 @@ func main(){
 	go func(){
 		defer wg.Done()
 		grpcServerInstance:=grpc.NewServer()
-		authenticationServiceRpcServerType := &authenticationServiceRpcServer.ValidationServerGrpcStruct{}
+		authenticationServiceRpcServerType := &authRpcServerProtoFiles.ValidationServerGrpcStruct{}
 
-		authenticationServiceRpcServer.RegisterTokenValidationServer(grpcServerInstance,authenticationServiceRpcServerType)
+		authRpcServerProtoFiles.RegisterTokenValidationServer(grpcServerInstance,authenticationServiceRpcServerType)
 
 		listener, err := net.Listen("tcp", fmt.Sprintf(":%s",grpcPort))
 		if err != nil {
@@ -53,6 +49,9 @@ func main(){
 	}()
 
 	// *************http server implementation***************
+
+	mongoUrl:=os.Getenv("mongoConnectionString")
+	httpPort:=os.Getenv("httpPort")
 	
 	go func(){
 		defer wg.Done()
