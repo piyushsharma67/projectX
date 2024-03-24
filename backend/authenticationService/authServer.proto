@@ -1,7 +1,7 @@
 syntax = "proto3";
 
-package authRpcServerProtoFiles;
-option go_package="./authRpcServerProtoFiles";
+package tokenRpcServerProtoFiles;
+option go_package="./tokenRpcServerProtoFiles";
 
 message GenerateTokenRequest{
   string emailId=1;

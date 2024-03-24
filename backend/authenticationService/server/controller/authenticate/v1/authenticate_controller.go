@@ -1,10 +1,10 @@
 package v1
 
 import (
-	"authenticationService/authRpcServerProtoFiles"
 	"authenticationService/models"
 	"authenticationService/server"
 	authenticate_service "authenticationService/server/services/authenticate/v1"
+	"authenticationService/tokenRpcServerProtoFiles"
 	tokenServiceConnPackage "authenticationService/tokenServiceConn"
 	"authenticationService/utils"
 	"context"
@@ -13,8 +13,6 @@ import (
 	"fmt"
 	"net/http"
 )
-
-
 
 var (
 	EMAIL_CANNOT_BE_EMPTY=errors.New("email cannot be empty")
@@ -43,6 +41,7 @@ func SignUpController(server *server.Server,tsc *tokenServiceConnPackage.TokenSe
 
 		var err error
 		var user *models.User
+		var jwt string
 
 		err=json.NewDecoder(r.Body).Decode(&user)
 		if(err!=nil){
@@ -77,21 +76,18 @@ func SignUpController(server *server.Server,tsc *tokenServiceConnPackage.TokenSe
 			return
 		}
 
-		request := &authRpcServerProtoFiles.GenerateTokenRequest{
+		request := &tokenRpcServerProtoFiles.GenerateTokenRequest{
 			EmailId: user.Email,
 		}
 
 		response,err:=tsc.TokenClient.GenerateToken(context.Background(),request)
 
 		switch payload := response.Response.(type) {
-		case *authRpcServerProtoFiles.TokenResponse_Success:
-			// Handle success
-			fmt.Println("success",payload)
-			// Do something with successResponse
-		case *authRpcServerProtoFiles.TokenResponse_Error:
-			// Handle error
-			fmt.Println("success",payload)
-			// Do something with errorResponse
+		case *tokenRpcServerProtoFiles.TokenResponse_Success:
+			jwt=payload.Success.Data
+		case *tokenRpcServerProtoFiles.TokenResponse_Error:
+			utils.CreateErrorResponse(errors.New(payload.Error.ErrorMessage),http.StatusUnauthorized,w)
+			return
 		}
 
 		if err != nil {
@@ -101,7 +97,7 @@ func SignUpController(server *server.Server,tsc *tokenServiceConnPackage.TokenSe
 
 		userLoginResponseBody := models.UserLoginDetails{
 			User:  user,
-			Token: "sdasd",
+			Token: jwt,
 		}
 
 		userLoginResponseBody.User.Password=""
@@ -129,6 +125,7 @@ func LoginController(server *server.Server,tsc *tokenServiceConnPackage.TokenSer
 	return func (w http.ResponseWriter,r *http.Request){
 		
 		var loginRequestBody *UserLoginRequestBody
+		var jwt string
 
 		json.NewDecoder(r.Body).Decode(&loginRequestBody)
 		err:=validateLoginRequestBody(loginRequestBody)
@@ -149,34 +146,28 @@ func LoginController(server *server.Server,tsc *tokenServiceConnPackage.TokenSer
 			return
 		}
 
-		request := &authRpcServerProtoFiles.PingRequest{}
-
-		response,err:=tsc.TokenClient.Ping(context.Background(),request)
-
-		if err != nil {
-			// Handle error
-		} else {
-			fmt.Println("Ping response:", response.Message)
+		request := &tokenRpcServerProtoFiles.GenerateTokenRequest{
+			EmailId: user.Email,
 		}
 
-		// if response == nil || response.Response == nil {
-		// 	// Handle the case when response is nil or response.Response is nil
-		// 	fmt.Println("Response is nil")
-		// 	return
-		// }
+		response,err:=tsc.TokenClient.GenerateToken(context.Background(),request)
 
-		// switch payload := response.Response.(type) {
-		// case *authRpcServerProtoFiles.TokenResponse_Success:
-		// 	// Handle success
-		// 	successResponse := payload.Success
-		// 	fmt.Println("success",successResponse)
-		// 	// Do something with successResponse
-		// case *authRpcServerProtoFiles.TokenResponse_Error:
-		// 	// Handle error
-		// 	errorResponse := payload.Error
-		// 	fmt.Println("success",errorResponse)
-		// 	// Do something with errorResponse
-		// }
+		if response == nil || response.Response == nil {
+			
+			fmt.Println("Response is nil")
+			return
+		}
+
+		switch payload := response.Response.(type) {
+		case *tokenRpcServerProtoFiles.TokenResponse_Success:
+			
+			successResponse := payload.Success
+			jwt=successResponse.Data
+			
+		case *tokenRpcServerProtoFiles.TokenResponse_Error:
+			utils.CreateErrorResponse(errors.New(payload.Error.ErrorMessage),http.StatusUnauthorized,w)
+			return
+		}
 		if err != nil {
 			utils.CreateErrorResponse(err, http.StatusUnauthorized, w)
 			return
@@ -184,7 +175,7 @@ func LoginController(server *server.Server,tsc *tokenServiceConnPackage.TokenSer
 
 		userLoginResponseBody := models.UserLoginDetails{
 			User:  user,
-			Token: "sa",
+			Token: jwt,
 		}
 
 		utils.CreateSuccessResponse("success",userLoginResponseBody,http.StatusOK,w)

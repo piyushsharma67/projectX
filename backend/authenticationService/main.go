@@ -1,7 +1,6 @@
 package main
 
 import (
-	"authenticationService/authRpcServerProtoFiles"
 	appRoutes "authenticationService/routes"
 	"authenticationService/server"
 	"authenticationService/store"
@@ -17,11 +16,6 @@ import (
 	"github.com/gorilla/handlers"
 )
 
-
-
-type TokenServiceConn struct{
-	tokenClient authRpcServerProtoFiles.TokenServiceClient
-}
 
 func main(){
 

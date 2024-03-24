@@ -4,7 +4,7 @@
 // - protoc             v4.25.3
 // source: authServer.proto
 
-package authRpcServerProtoFiles
+package tokenRpcServerProtoFiles
 
 import (
 	context "context"
@@ -37,7 +37,7 @@ func NewTokenServiceClient(cc grpc.ClientConnInterface) TokenServiceClient {
 
 func (c *tokenServiceClient) GenerateToken(ctx context.Context, in *GenerateTokenRequest, opts ...grpc.CallOption) (*TokenResponse, error) {
 	out := new(TokenResponse)
-	err := c.cc.Invoke(ctx, "/authRpcServerProtoFiles.TokenService/GenerateToken", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/tokenRpcServerProtoFiles.TokenService/GenerateToken", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +46,7 @@ func (c *tokenServiceClient) GenerateToken(ctx context.Context, in *GenerateToke
 
 func (c *tokenServiceClient) ValidateToken(ctx context.Context, in *TokenRequest, opts ...grpc.CallOption) (*TokenResponse, error) {
 	out := new(TokenResponse)
-	err := c.cc.Invoke(ctx, "/authRpcServerProtoFiles.TokenService/ValidateToken", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/tokenRpcServerProtoFiles.TokenService/ValidateToken", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +55,7 @@ func (c *tokenServiceClient) ValidateToken(ctx context.Context, in *TokenRequest
 
 func (c *tokenServiceClient) Ping(ctx context.Context, in *PingRequest, opts ...grpc.CallOption) (*PingResponse, error) {
 	out := new(PingResponse)
-	err := c.cc.Invoke(ctx, "/authRpcServerProtoFiles.TokenService/Ping", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/tokenRpcServerProtoFiles.TokenService/Ping", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -108,7 +108,7 @@ func _TokenService_GenerateToken_Handler(srv interface{}, ctx context.Context, d
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/authRpcServerProtoFiles.TokenService/GenerateToken",
+		FullMethod: "/tokenRpcServerProtoFiles.TokenService/GenerateToken",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(TokenServiceServer).GenerateToken(ctx, req.(*GenerateTokenRequest))
@@ -126,7 +126,7 @@ func _TokenService_ValidateToken_Handler(srv interface{}, ctx context.Context, d
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/authRpcServerProtoFiles.TokenService/ValidateToken",
+		FullMethod: "/tokenRpcServerProtoFiles.TokenService/ValidateToken",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(TokenServiceServer).ValidateToken(ctx, req.(*TokenRequest))
@@ -144,7 +144,7 @@ func _TokenService_Ping_Handler(srv interface{}, ctx context.Context, dec func(i
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/authRpcServerProtoFiles.TokenService/Ping",
+		FullMethod: "/tokenRpcServerProtoFiles.TokenService/Ping",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(TokenServiceServer).Ping(ctx, req.(*PingRequest))
@@ -156,7 +156,7 @@ func _TokenService_Ping_Handler(srv interface{}, ctx context.Context, dec func(i
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var TokenService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "authRpcServerProtoFiles.TokenService",
+	ServiceName: "tokenRpcServerProtoFiles.TokenService",
 	HandlerType: (*TokenServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
