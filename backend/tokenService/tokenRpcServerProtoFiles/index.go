@@ -2,10 +2,16 @@ package tokenRpcServerProtoFiles
 
 import (
 	context "context"
+	"fmt"
 	"tokenService/utils"
 )
 
 type TokenServices struct{}
+
+// mustEmbedUnimplementedTokenServiceServer implements TokenServiceServer.
+func (s *TokenServices) mustEmbedUnimplementedTokenServiceServer() {
+	panic("unimplemented")
+}
 
 // mustEmbedUnimplementedTokenValidationServer implements TokenValidationServer.
 func (s *TokenServices) mustEmbedUnimplementedTokenValidationServer() {
@@ -14,6 +20,8 @@ func (s *TokenServices) mustEmbedUnimplementedTokenValidationServer() {
 
 func (s *TokenServices) GenerateToken(ctx context.Context, req *GenerateTokenRequest) (*TokenResponse, error) {
 	email := req.EmailId
+
+	fmt.Println("email id is", email)
 
 	jwt, err := utils.CreateLoginJWTToken(email)
 
@@ -68,4 +76,8 @@ func (s *TokenServices) ValidateToken(ctx context.Context, req *TokenRequest) (*
 			},
 		}, nil
 	}
+}
+
+func (s *TokenServices) Ping(ctx context.Context, req *PingRequest) (*PingResponse, error) {
+	return &PingResponse{Message: "Server is running"}, nil
 }

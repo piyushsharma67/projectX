@@ -30,9 +30,16 @@ message TokenResponse {
   }
 }
 
-service TokenValidation {
+message PingRequest {}
+
+message PingResponse {
+  string message = 1;
+}
+
+service TokenService {
   rpc GenerateToken(GenerateTokenRequest) returns (TokenResponse);
   rpc ValidateToken(TokenRequest) returns (TokenResponse);
+  rpc Ping(PingRequest) returns (PingResponse);
 }
 
 //cmd  protoc --go_out=./ --go-grpc_out=./ ./tokenServer.proto

@@ -18,86 +18,158 @@ import (
 // Requires gRPC-Go v1.32.0 or later.
 const _ = grpc.SupportPackageIsVersion7
 
-// TokenValidationClient is the client API for TokenValidation service.
+// TokenServiceClient is the client API for TokenService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type TokenValidationClient interface {
+type TokenServiceClient interface {
+	GenerateToken(ctx context.Context, in *GenerateTokenRequest, opts ...grpc.CallOption) (*TokenResponse, error)
 	ValidateToken(ctx context.Context, in *TokenRequest, opts ...grpc.CallOption) (*TokenResponse, error)
+	Ping(ctx context.Context, in *PingRequest, opts ...grpc.CallOption) (*PingResponse, error)
 }
 
-type tokenValidationClient struct {
+type tokenServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewTokenValidationClient(cc grpc.ClientConnInterface) TokenValidationClient {
-	return &tokenValidationClient{cc}
+func NewTokenServiceClient(cc grpc.ClientConnInterface) TokenServiceClient {
+	return &tokenServiceClient{cc}
 }
 
-func (c *tokenValidationClient) ValidateToken(ctx context.Context, in *TokenRequest, opts ...grpc.CallOption) (*TokenResponse, error) {
+func (c *tokenServiceClient) GenerateToken(ctx context.Context, in *GenerateTokenRequest, opts ...grpc.CallOption) (*TokenResponse, error) {
 	out := new(TokenResponse)
-	err := c.cc.Invoke(ctx, "/authRpcServerProtoFiles.TokenValidation/ValidateToken", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/authRpcServerProtoFiles.TokenService/GenerateToken", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// TokenValidationServer is the server API for TokenValidation service.
-// All implementations must embed UnimplementedTokenValidationServer
+func (c *tokenServiceClient) ValidateToken(ctx context.Context, in *TokenRequest, opts ...grpc.CallOption) (*TokenResponse, error) {
+	out := new(TokenResponse)
+	err := c.cc.Invoke(ctx, "/authRpcServerProtoFiles.TokenService/ValidateToken", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *tokenServiceClient) Ping(ctx context.Context, in *PingRequest, opts ...grpc.CallOption) (*PingResponse, error) {
+	out := new(PingResponse)
+	err := c.cc.Invoke(ctx, "/authRpcServerProtoFiles.TokenService/Ping", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// TokenServiceServer is the server API for TokenService service.
+// All implementations must embed UnimplementedTokenServiceServer
 // for forward compatibility
-type TokenValidationServer interface {
+type TokenServiceServer interface {
+	GenerateToken(context.Context, *GenerateTokenRequest) (*TokenResponse, error)
 	ValidateToken(context.Context, *TokenRequest) (*TokenResponse, error)
-	mustEmbedUnimplementedTokenValidationServer()
+	Ping(context.Context, *PingRequest) (*PingResponse, error)
+	mustEmbedUnimplementedTokenServiceServer()
 }
 
-// UnimplementedTokenValidationServer must be embedded to have forward compatible implementations.
-type UnimplementedTokenValidationServer struct {
+// UnimplementedTokenServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedTokenServiceServer struct {
 }
 
-func (UnimplementedTokenValidationServer) ValidateToken(context.Context, *TokenRequest) (*TokenResponse, error) {
+func (UnimplementedTokenServiceServer) GenerateToken(context.Context, *GenerateTokenRequest) (*TokenResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GenerateToken not implemented")
+}
+func (UnimplementedTokenServiceServer) ValidateToken(context.Context, *TokenRequest) (*TokenResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ValidateToken not implemented")
 }
-func (UnimplementedTokenValidationServer) mustEmbedUnimplementedTokenValidationServer() {}
+func (UnimplementedTokenServiceServer) Ping(context.Context, *PingRequest) (*PingResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Ping not implemented")
+}
+func (UnimplementedTokenServiceServer) mustEmbedUnimplementedTokenServiceServer() {}
 
-// UnsafeTokenValidationServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to TokenValidationServer will
+// UnsafeTokenServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to TokenServiceServer will
 // result in compilation errors.
-type UnsafeTokenValidationServer interface {
-	mustEmbedUnimplementedTokenValidationServer()
+type UnsafeTokenServiceServer interface {
+	mustEmbedUnimplementedTokenServiceServer()
 }
 
-func RegisterTokenValidationServer(s grpc.ServiceRegistrar, srv TokenValidationServer) {
-	s.RegisterService(&TokenValidation_ServiceDesc, srv)
+func RegisterTokenServiceServer(s grpc.ServiceRegistrar, srv TokenServiceServer) {
+	s.RegisterService(&TokenService_ServiceDesc, srv)
 }
 
-func _TokenValidation_ValidateToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _TokenService_GenerateToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GenerateTokenRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TokenServiceServer).GenerateToken(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/authRpcServerProtoFiles.TokenService/GenerateToken",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TokenServiceServer).GenerateToken(ctx, req.(*GenerateTokenRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TokenService_ValidateToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(TokenRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TokenValidationServer).ValidateToken(ctx, in)
+		return srv.(TokenServiceServer).ValidateToken(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/authRpcServerProtoFiles.TokenValidation/ValidateToken",
+		FullMethod: "/authRpcServerProtoFiles.TokenService/ValidateToken",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TokenValidationServer).ValidateToken(ctx, req.(*TokenRequest))
+		return srv.(TokenServiceServer).ValidateToken(ctx, req.(*TokenRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// TokenValidation_ServiceDesc is the grpc.ServiceDesc for TokenValidation service.
+func _TokenService_Ping_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PingRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TokenServiceServer).Ping(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/authRpcServerProtoFiles.TokenService/Ping",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TokenServiceServer).Ping(ctx, req.(*PingRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// TokenService_ServiceDesc is the grpc.ServiceDesc for TokenService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var TokenValidation_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "authRpcServerProtoFiles.TokenValidation",
-	HandlerType: (*TokenValidationServer)(nil),
+var TokenService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "authRpcServerProtoFiles.TokenService",
+	HandlerType: (*TokenServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
+			MethodName: "GenerateToken",
+			Handler:    _TokenService_GenerateToken_Handler,
+		},
+		{
 			MethodName: "ValidateToken",
-			Handler:    _TokenValidation_ValidateToken_Handler,
+			Handler:    _TokenService_ValidateToken_Handler,
+		},
+		{
+			MethodName: "Ping",
+			Handler:    _TokenService_Ping_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

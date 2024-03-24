@@ -83,9 +83,10 @@ func FetchUserByEmailInDb(store *store.Store,email string) (*models.User,error){
 
 	filter := bson.M{"email": email}
 
-	err:=store.DB.Collection("users").FindOne(context.Background(),filter).Decode(user)
+	err:=store.DB.Collection("users").FindOne(context.Background(),filter).Decode(&user)
 
 	if(err!=nil){
+		fmt.Println("error is",err)
 		return nil,err
 	}
 

@@ -5,8 +5,8 @@ import (
 	appRoutes "authenticationService/routes"
 	"authenticationService/server"
 	"authenticationService/store"
+	tokenServiceConnPackage "authenticationService/tokenServiceConn"
 	"errors"
-	"net"
 	"os"
 	"strings"
 
@@ -14,73 +14,53 @@ import (
 	"log"
 	"net/http"
 
-	"sync"
-
 	"github.com/gorilla/handlers"
-	"google.golang.org/grpc"
 )
 
+
+
+type TokenServiceConn struct{
+	tokenClient authRpcServerProtoFiles.TokenServiceClient
+}
+
 func main(){
-
-	// **************grpc server implementation***************
-
-	grpcPort:=os.Getenv("grpcPort")
-
-	var wg sync.WaitGroup
-
-	wg.Add(1)
-	go func(){
-		defer wg.Done()
-		grpcServerInstance:=grpc.NewServer()
-		authenticationServiceRpcServerType := &authRpcServerProtoFiles.ValidationServerGrpcStruct{}
-
-		authRpcServerProtoFiles.RegisterTokenValidationServer(grpcServerInstance,authenticationServiceRpcServerType)
-
-		listener, err := net.Listen("tcp", fmt.Sprintf(":%s",grpcPort))
-		if err != nil {
-			fmt.Printf("Failed to listen: %v", err)
-			return
-		}
-
-		fmt.Printf("gRPC server listening on port %s\n", grpcPort)
-		if err := grpcServerInstance.Serve(listener); err != nil {
-			fmt.Printf("Failed to serve: %v", err)
-		}
-	}()
 
 	// *************http server implementation***************
 
 	mongoUrl:=os.Getenv("mongoConnectionString")
 	httpPort:=os.Getenv("httpPort")
-	
-	go func(){
-		defer wg.Done()
 
-		fmt.Println("Creating store!!")
-		
-		store:=store.New(mongoUrl)
-	
-		fmt.Println("Creating server!!")
-		server:=server.New(store)
-	
-		fmt.Println("Creating routes!!")
-		routes:=appRoutes.InitRoutes(server)
-	
-		fmt.Println("starting server on "+httpPort)
-		headersOk := handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization", "Content-Disposition"})
-		originsOk := handlers.AllowedOrigins([]string{"*"})
-		methodsOk := handlers.AllowedMethods([]string{"GET", "POST", "PUT", "OPTIONS", "DELETE"})
-		
-		err:=http.ListenAndServe(fmt.Sprintf(":%s",httpPort),handlers.CORS(headersOk,originsOk,methodsOk)(routes))
-	
-		if(err!=nil){
-			log.Fatal(err)
-		}
-	
-		fmt.Println("running server!!")
-	}()
+	fmt.Println("connecting with token server over grpc!!")
+	tsc,err:=tokenServiceConnPackage.New()
 
-	wg.Wait()
+	if(err!=nil){
+		log.Fatal(err)
+	}
+
+	fmt.Println("connected with token server over grpc!!")
+
+	fmt.Println("Creating store!!")
+	
+	store:=store.New(mongoUrl)
+
+	fmt.Println("Creating server!!")
+	server:=server.New(store)
+
+	fmt.Println("Creating routes!!")
+	routes:=appRoutes.InitRoutes(server,tsc)
+
+	fmt.Println("starting server on "+httpPort)
+	headersOk := handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization", "Content-Disposition"})
+	originsOk := handlers.AllowedOrigins([]string{"*"})
+	methodsOk := handlers.AllowedMethods([]string{"GET", "POST", "PUT", "OPTIONS", "DELETE"})
+	
+	err=http.ListenAndServe(fmt.Sprintf(":%s",httpPort),handlers.CORS(headersOk,originsOk,methodsOk)(routes))
+
+	if(err!=nil){
+		log.Fatal(err)
+	}
+
+	fmt.Println("running server!!")
 }
 
 func getConnectionString(conenctString string) (string,error){

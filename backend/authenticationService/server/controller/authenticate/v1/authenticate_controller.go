@@ -1,73 +1,26 @@
 package v1
 
 import (
+	"authenticationService/authRpcServerProtoFiles"
 	"authenticationService/models"
 	"authenticationService/server"
 	authenticate_service "authenticationService/server/services/authenticate/v1"
+	tokenServiceConnPackage "authenticationService/tokenServiceConn"
 	"authenticationService/utils"
+	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 )
 
-type UserLoginRequestBody struct{
-	Email       string `json:"email"`
-	Password    string `json:"password"`
-}
+
 
 var (
 	EMAIL_CANNOT_BE_EMPTY=errors.New("email cannot be empty")
 	PASSWORD_CANNOT_BE_EMPTY=errors.New("password cannot be empty")
 	INVALID_CREDENTIALS=errors.New("invalid credentials")
 )
-
-func validateLoginRequestBody (requestBody *UserLoginRequestBody)error{
-	if(requestBody.Email=="" ){
-		return EMAIL_CANNOT_BE_EMPTY
-	}else if(requestBody.Password=="") {
-		return PASSWORD_CANNOT_BE_EMPTY
-	}
-	return nil
-}
-
-func Login(server *server.Server)http.HandlerFunc{
-	return func (w http.ResponseWriter,r *http.Request){
-		
-		var loginRequestBody *UserLoginRequestBody
-
-		json.NewDecoder(r.Body).Decode(&loginRequestBody)
-		err:=validateLoginRequestBody(loginRequestBody)
-
-		if(err!=nil){
-			utils.CreateErrorResponse(err,http.StatusOK,w)
-			return
-		}
-
-		user,err:=authenticate_service.FetchUserByEmailInDb(server.Store,loginRequestBody.Email)
-
-		if(err!=nil){
-			utils.CreateErrorResponse(err,http.StatusOK,w)
-			return
-		}else if(user==nil){
-			utils.CreateErrorResponse(INVALID_CREDENTIALS,http.StatusUnauthorized,w)
-			return
-		}
-
-		jwtToken, err := utils.CreateLoginJWTToken(user.Email, r.UserAgent())
-		if err != nil {
-			utils.CreateErrorResponse(err, http.StatusUnauthorized, w)
-			return
-		}
-
-		userLoginResponseBody := models.UserLoginDetails{
-			User:  user,
-			Token: jwtToken,
-		}
-
-		utils.CreateSuccessResponse("success",userLoginResponseBody,http.StatusOK,w)
-	}
-}
-
 
 func ValidateRequestBody(user *models.User)error{
 	var err error
@@ -85,7 +38,7 @@ func ValidateRequestBody(user *models.User)error{
 	return err
 }
 
-func SignUpController(server *server.Server) http.HandlerFunc{
+func SignUpController(server *server.Server,tsc *tokenServiceConnPackage.TokenServiceConn) http.HandlerFunc{
 	return func(w http.ResponseWriter,r *http.Request){
 
 		var err error
@@ -124,7 +77,23 @@ func SignUpController(server *server.Server) http.HandlerFunc{
 			return
 		}
 
-		jwtToken, err := utils.CreateLoginJWTToken(user.Email, r.UserAgent())
+		request := &authRpcServerProtoFiles.GenerateTokenRequest{
+			EmailId: user.Email,
+		}
+
+		response,err:=tsc.TokenClient.GenerateToken(context.Background(),request)
+
+		switch payload := response.Response.(type) {
+		case *authRpcServerProtoFiles.TokenResponse_Success:
+			// Handle success
+			fmt.Println("success",payload)
+			// Do something with successResponse
+		case *authRpcServerProtoFiles.TokenResponse_Error:
+			// Handle error
+			fmt.Println("success",payload)
+			// Do something with errorResponse
+		}
+
 		if err != nil {
 			utils.CreateErrorResponse(err, http.StatusUnauthorized, w)
 			return
@@ -132,7 +101,7 @@ func SignUpController(server *server.Server) http.HandlerFunc{
 
 		userLoginResponseBody := models.UserLoginDetails{
 			User:  user,
-			Token: jwtToken,
+			Token: "sdasd",
 		}
 
 		userLoginResponseBody.User.Password=""
@@ -141,6 +110,87 @@ func SignUpController(server *server.Server) http.HandlerFunc{
 		utils.CreateSuccessResponse("successful",userLoginResponseBody,http.StatusOK,w)
 	}
 }
+
+type UserLoginRequestBody struct{
+	Email       string `json:"email"`
+	Password    string `json:"password"`
+}
+
+func validateLoginRequestBody (requestBody *UserLoginRequestBody)error{
+	if(requestBody.Email=="" ){
+		return EMAIL_CANNOT_BE_EMPTY
+	}else if(requestBody.Password=="") {
+		return PASSWORD_CANNOT_BE_EMPTY
+	}
+	return nil
+}
+
+func LoginController(server *server.Server,tsc *tokenServiceConnPackage.TokenServiceConn)http.HandlerFunc{
+	return func (w http.ResponseWriter,r *http.Request){
+		
+		var loginRequestBody *UserLoginRequestBody
+
+		json.NewDecoder(r.Body).Decode(&loginRequestBody)
+		err:=validateLoginRequestBody(loginRequestBody)
+
+		if(err!=nil){
+			
+			utils.CreateErrorResponse(err,http.StatusOK,w)
+			return
+		}
+
+		user,err:=authenticate_service.FetchUserByEmailInDb(server.Store,loginRequestBody.Email)
+		
+		if(err!=nil){
+			utils.CreateErrorResponse(err,http.StatusOK,w)
+			return
+		}else if(user==nil){
+			utils.CreateErrorResponse(INVALID_CREDENTIALS,http.StatusUnauthorized,w)
+			return
+		}
+
+		request := &authRpcServerProtoFiles.PingRequest{}
+
+		response,err:=tsc.TokenClient.Ping(context.Background(),request)
+
+		if err != nil {
+			// Handle error
+		} else {
+			fmt.Println("Ping response:", response.Message)
+		}
+
+		// if response == nil || response.Response == nil {
+		// 	// Handle the case when response is nil or response.Response is nil
+		// 	fmt.Println("Response is nil")
+		// 	return
+		// }
+
+		// switch payload := response.Response.(type) {
+		// case *authRpcServerProtoFiles.TokenResponse_Success:
+		// 	// Handle success
+		// 	successResponse := payload.Success
+		// 	fmt.Println("success",successResponse)
+		// 	// Do something with successResponse
+		// case *authRpcServerProtoFiles.TokenResponse_Error:
+		// 	// Handle error
+		// 	errorResponse := payload.Error
+		// 	fmt.Println("success",errorResponse)
+		// 	// Do something with errorResponse
+		// }
+		if err != nil {
+			utils.CreateErrorResponse(err, http.StatusUnauthorized, w)
+			return
+		}
+
+		userLoginResponseBody := models.UserLoginDetails{
+			User:  user,
+			Token: "sa",
+		}
+
+		utils.CreateSuccessResponse("success",userLoginResponseBody,http.StatusOK,w)
+	}
+}
+
 
 func FetchUserByEmailController(server *server.Server) http.HandlerFunc{
 	return func(w http.ResponseWriter,r *http.Request){

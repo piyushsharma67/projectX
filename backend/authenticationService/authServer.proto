@@ -1,8 +1,11 @@
 syntax = "proto3";
 
-package authRpcServerProtoFiles
-;
+package authRpcServerProtoFiles;
 option go_package="./authRpcServerProtoFiles";
+
+message GenerateTokenRequest{
+  string emailId=1;
+}
 
 message TokenRequest {
   string token = 1;
@@ -26,8 +29,16 @@ message TokenResponse {
   }
 }
 
-service TokenValidation {
+message PingRequest {}
+
+message PingResponse {
+  string message = 1;
+}
+
+service TokenService {
+  rpc GenerateToken(GenerateTokenRequest) returns (TokenResponse);
   rpc ValidateToken(TokenRequest) returns (TokenResponse);
+  rpc Ping(PingRequest) returns (PingResponse);
 }
 
 //cmd  protoc --go_out=./ --go-grpc_out=./ ./authServer.proto

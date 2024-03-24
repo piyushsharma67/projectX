@@ -12,11 +12,10 @@ services:
     environment:
         mongoConnectionString: 'mongodb+srv://goku:mongoGoku56@schoolapp.jkesrkw.mongodb.net/'
         httpPort: 3000
-        grpcPort: 5000
   notifyservice:
     build: ./notificationservice
     ports:
-      - "5001:5001"
+      - "3001:3001"
     volumes:
       - ./notificationservice:/app
     networks:
@@ -24,13 +23,13 @@ services:
   tokenservice:
     build: ./tokenService
     ports:
-      - "4999:4999"
+      - "5002:5002"
     volumes:
       - ./tokenService:/app
     networks:
       - farm-api_go_stack
     environment:
-        grpcPort: 5001
+        grpcPort: 5002
 
 networks:
     farm-api_go_stack:
